@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, request
+from flask import Flask, render_template, url_for, request, redirect
 from datetime import timedelta, datetime
 from lib import ConfParser
 
@@ -25,7 +25,7 @@ def add_chat(msg):
 
 @app.route("/favicon.ico")
 def favicon():
-    return redirect_to(url_for('static', filename='favicon.ico'))
+    return redirect(url_for('static', filename='favicon.ico'))
 
 @app.route("/")
 def index():
