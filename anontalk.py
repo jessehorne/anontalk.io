@@ -21,6 +21,10 @@ def add_chat(msg):
         chat_buffer.pop(0)
 
 
+@app.route("/favicon.ico")
+def favicon():
+    return redirect_to(url_for('static', filename='favicon.ico'))
+
 @app.route("/")
 def index():
     return render_template("index.html", config=config)
