@@ -4,7 +4,7 @@
     <div class="chat" id="chat"></div>
 
     <input type="text" class="message-nick" id="message-nick" maxlength="15" placeholder="nickname">
-    <input type="text" class="message-input" id="message-input" maxlength="200" placeholder="...">
+    <input type="text" class="message-input" id="message-input" maxlength="100" placeholder="...">
 
     <script>
     $(document).ready(function() {
@@ -35,7 +35,7 @@
                     $("#message-input").val("");
                 }
             } else {
-                if (msg.length >= 200) {
+                if (msg.length >= 100) {
                     $("#message-input").addClass("input-alert");
                 } else {
                     $("#message-input").removeClass("input-alert")
@@ -59,7 +59,8 @@
                 url: "http://{{ config['anontalk']['ip'] }}/chat/get",
                 async: true,
                 success: function(data) {
-                    if (data !== "OK") {
+                    console.log(data);
+                    if (data !== "NO") {
                         var buffer = JSON.parse(data);
 
                         var div_buffer = "";
@@ -82,7 +83,7 @@
                     }
                 }
             });
-        }, 500);
+        }, 200);
 
     });
 

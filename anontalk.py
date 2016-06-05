@@ -8,6 +8,7 @@ app = Flask(__name__)
 
 chat_buffer = []
 chat_buffer_max = 50
+chat_max_length = 100
 
 addrs = {}
 
@@ -15,10 +16,11 @@ config = {}
 config["anontalk"] = ConfParser.parse("anontalk")
 
 def add_chat(msg):
-    chat_buffer.append(msg)
+    if len(msg) <= chat_max_length:
+        chat_buffer.append(msg)
 
-    if len(chat_buffer) == chat_buffer_max:
-        chat_buffer.pop(0)
+        if len(chat_buffer) == chat_buffer_max:
+            chat_buffer.pop(0)
 
 
 @app.route("/favicon.ico")
@@ -34,17 +36,18 @@ def index():
 def chat_send():
 
     data = request.get_json(silent=True)
+
     addr = request.remote_addr
 
     if addr in addrs:
-        if addrs[addr] < datetime.now() + timedelta(seconds = -0.1):
+        if addrs[addr][0] < datetime.now() + timedelta(seconds = -0.2):
             add_chat([data["nick"], data["msg"]])
-            addrs[addr] = datetime.now()
+            addrs[addr][0] = datetime.now()
     else:
         add_chat([data["nick"], data["msg"]])
-        addrs[addr] = datetime.now()
-
-    return "OK"
+        addrs[addr].append(datetime.now())
+        addrs[addr].append(datetime.now() + timedelta(seconds = -10))
+    return "NO"
 
 @app.route("/chat/get")
 def chat_get():
@@ -52,8 +55,8 @@ def chat_get():
     addr = request.remote_addr
 
     if addr in addrs:
-        if addrs[addr] < datetime.now() + timedelta(seconds = -0.1):
-            addrs[addr] = datetime.now()
+        if addrs[addr][1] < datetime.now() + timedelta(seconds = -0.5):
+            addrs[addr][1] = datetime.now()
 
             data = {}
             data["buffer"] = chat_buffer
@@ -61,10 +64,16 @@ def chat_get():
 
             return json.dumps(data)
     else:
-        addrs[addr] = datetime.now()
+        addrs[addr] = []
+        addrs[addr].append(datetime.now() + timedelta(seconds = -10))
+        addrs[addr].append(datetime.now())
+
+        data = {}
+        data["buffer"] = chat_buffer
+        data["users"] = len(addrs)
         return json.dumps(data)
 
-    return "OK"
+    return "NO"
 
 
 if __name__ == "__main__":
