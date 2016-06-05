@@ -12,7 +12,7 @@ chat_buffer_max = 50
 addrs = {}
 
 config = {}
-config["anonchat"] = ConfParser.parse("anonchat")
+config["anontalk"] = ConfParser.parse("anontalk")
 
 def add_chat(msg):
     chat_buffer.append(msg)
@@ -64,5 +64,5 @@ def chat_get():
 
 
 if __name__ == "__main__":
-    app.config["DEBUG"] = config["anonchat"]["debug"]
+    app.config["DEBUG"] = config["anontalk"]["debug"]
     app.run()
