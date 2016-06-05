@@ -1,0 +1,90 @@
+{% extends "layout.html" %}
+
+{% block body %}
+    <div class="chat" id="chat"></div>
+
+    <input type="text" class="message-nick" id="message-nick" maxlength="15" placeholder="nickname">
+    <input type="text" class="message-input" id="message-input" maxlength="200" placeholder="...">
+
+    <script>
+    $(document).ready(function() {
+        var chat_buffer = [];
+
+        $("#message-input").keyup(function(e) {
+            var nick = $("#message-nick").val();
+            var msg = $("#message-input").val();
+
+            if (e.keyCode == 13) {
+                if (!$("#message-nick").val() == "" && $("#message-input").val().length > 0) {
+                    var data = {};
+                    data["nick"] = nick;
+                    data["msg"] = msg;
+
+                    $.ajax({
+                        type: "POST",
+                        url: "http://{{ config['anonchat']['ip'] }}/chat/send",
+                        data: JSON.stringify(data),
+                        contentType : 'application/json',
+                        dataType: "json",
+                        async: true,
+                        success: function(data) {
+                            // pass
+                        }
+                    });
+
+                    $("#message-input").val("");
+                }
+            } else {
+                if (msg.length >= 200) {
+                    $("#message-input").addClass("input-alert");
+                } else {
+                    $("#message-input").removeClass("input-alert")
+                }
+            }
+        });
+
+        $("#message-nick").keyup(function(e) {
+            var nick = $("#message-nick").val();
+
+            if (nick.length >= 15) {
+                $("#message-nick").addClass("input-alert");
+            } else {
+                $("#message-nick").removeClass("input-alert")
+            }
+        });
+
+        var refresh = setInterval(function() {
+            $.ajax({
+                type: "GET",
+                url: "http://{{ config['anonchat']['ip'] }}/chat/get",
+                async: true,
+                success: function(data) {
+                    if (data !== "OK") {
+                        var buffer = JSON.parse(data);
+
+                        var div_buffer = "";
+                        var div = "<div class=\"message\"><b class=\"username\">NICK</b> - MSG</div>";
+
+                        for (var i=0; i<buffer["buffer"].length; i++) {
+                            var new_div = div.replace("NICK", buffer["buffer"][i][0]);
+                            new_div = new_div.replace("MSG", buffer["buffer"][i][1]);
+
+                            div_buffer += new_div;
+                        }
+
+                        var users_count_msg = buffer["users"] + " anon(s)";
+
+                        $("#header-users").html(users_count_msg);
+
+                        $("#chat").html(div_buffer);
+
+                        $('#chat').animate({scrollTop: $('#chat').get(0).scrollHeight}, 500);
+                    }
+                }
+            });
+        }, 500);
+
+    });
+
+    </script>
+{% endblock %}
