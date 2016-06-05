@@ -17,6 +17,8 @@ key = PayPalKey
 debug = True
 ```
 
+Run it!
+
 ```
 python anonchat.py
 ```
