@@ -59,7 +59,6 @@
                 url: "http://{{ config['anontalk']['ip'] }}/chat/get",
                 async: true,
                 success: function(data) {
-                    console.log(data);
                     if (data !== "NO") {
                         var buffer = JSON.parse(data);
 
@@ -75,7 +74,7 @@
 
                         var users_count_msg = buffer["users"] + " anon(s)";
 
-                        $("#header-users").html(users_count_msg);
+                        // $("#header-users").html(users_count_msg);
 
                         $("#chat").html(div_buffer);
 
@@ -83,7 +82,7 @@
                     }
                 }
             });
-        }, 200);
+        }, 500);
 
     });
 

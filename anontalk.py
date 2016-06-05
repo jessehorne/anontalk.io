@@ -10,7 +10,7 @@ chat_buffer = []
 chat_buffer_max = 50
 chat_max_length = 100
 
-addrs = {}
+addrs = []
 
 config = {}
 config["anontalk"] = ConfParser.parse("anontalk")
@@ -36,44 +36,16 @@ def index():
 def chat_send():
 
     data = request.get_json(silent=True)
-
-    addr = request.remote_addr
-
-    if addr in addrs:
-        if addrs[addr][0] < datetime.now() + timedelta(seconds = -0.2):
-            add_chat([data["nick"], data["msg"]])
-            addrs[addr][0] = datetime.now()
-    else:
-        add_chat([data["nick"], data["msg"]])
-        addrs[addr].append(datetime.now())
-        addrs[addr].append(datetime.now() + timedelta(seconds = -10))
-    return "NO"
+    add_chat([data["nick"], data["msg"]])
 
 @app.route("/chat/get")
 def chat_get():
 
-    addr = request.remote_addr
+    data = {}
+    data["buffer"] = chat_buffer
+    data["users"] = len(addrs)
 
-    if addr in addrs:
-        if addrs[addr][1] < datetime.now() + timedelta(seconds = -0.5):
-            addrs[addr][1] = datetime.now()
-
-            data = {}
-            data["buffer"] = chat_buffer
-            data["users"] = len(addrs)
-
-            return json.dumps(data)
-    else:
-        addrs[addr] = []
-        addrs[addr].append(datetime.now() + timedelta(seconds = -10))
-        addrs[addr].append(datetime.now())
-
-        data = {}
-        data["buffer"] = chat_buffer
-        data["users"] = len(addrs)
-        return json.dumps(data)
-
-    return "NO"
+    return json.dumps(data)
 
 
 if __name__ == "__main__":
