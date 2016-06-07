@@ -59,8 +59,10 @@
                 url: "http://{{ config['anontalk']['ip'] }}/chat/get",
                 async: true,
                 success: function(data) {
-                    if (data !== "NO") {
+                    if (data !== "{}") {
                         var buffer = JSON.parse(data);
+
+                        buffer["buffer"].reverse();
 
                         var div_buffer = "";
                         var div = "<div class=\"message\"><b class=\"username\">NICK</b> - MSG</div>";
@@ -77,8 +79,6 @@
                         // $("#header-users").html(users_count_msg);
 
                         $("#chat").html(div_buffer);
-
-                        $('#chat').animate({scrollTop: $('#chat').get(0).scrollHeight}, 500);
                     }
                 }
             });

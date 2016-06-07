@@ -38,6 +38,8 @@ def chat_send():
     data = request.get_json(silent=True)
     add_chat([data["nick"], data["msg"]])
 
+    return "{}"
+
 @app.route("/chat/get")
 def chat_get():
 
