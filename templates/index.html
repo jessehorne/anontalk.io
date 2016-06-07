@@ -8,6 +8,10 @@
 
     <script>
     $(document).ready(function() {
+        document.title = "anontalk.io";
+
+        var chat_message_alert = "*new message*";
+
         var chat_buffer = [];
 
         $("#message-input").keyup(function(e) {
@@ -44,6 +48,7 @@
         });
 
         $("#message-nick").keyup(function(e) {
+            document.title = "anontalk.io";
             var nick = $("#message-nick").val();
 
             if (nick.length >= 15) {
@@ -51,6 +56,10 @@
             } else {
                 $("#message-nick").removeClass("input-alert")
             }
+        });
+
+        $(document).mousemove(function(event) {
+            document.title = "anontalk.io";
         });
 
         var refresh = setInterval(function() {
@@ -77,6 +86,11 @@
                         var users_count_msg = buffer["users"] + " anon(s)";
 
                         // $("#header-users").html(users_count_msg);
+                        if ($("#chat").html() == div_buffer) {
+                            // pass
+                        } else {
+                            document.title = chat_message_alert;
+                        }
 
                         $("#chat").html(div_buffer);
                     }
