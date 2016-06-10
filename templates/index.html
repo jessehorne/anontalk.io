@@ -6,11 +6,14 @@
     <input type="text" class="message-nick" id="message-nick" maxlength="15" placeholder="nickname">
     <input type="text" class="message-input" id="message-input" maxlength="200" placeholder="...">
 
+    <audio id="notification" src="{{ url_for('static', filename='notification.wav') }}" type="audio/wav"></audio>
+
     <script src="{{ url_for('static', filename='socketio.js') }}"></script>
 
     <script>
         $(document).ready(function() {
             var sock = io.connect("http://{{ anonconf['anontalk']['ip'] }}:{{ anonconf['anontalk']['port'] }}");
+            var muted = false;
 
             sock.on("connect", function() {
                 console.log("Connected to anontalk.io!");
@@ -29,6 +32,10 @@
                 $('#chat').animate({scrollTop: $('#chat').get(0).scrollHeight}, 0);
 
                 document.title = "*new message*";
+
+                if (!muted) {
+                    $("#notification").get(0).play();
+                }
             });
 
             sock.on("get user count", function(data) {
@@ -66,10 +73,37 @@
                 }
 
                 if (e.keyCode == 13) {
-                    if ($("#message-nick").val().length > 0 && $("#message-input").val().length > 0) {
-                        sock.emit("send message", {nick: $("#message-nick").val(), msg: $("#message-input").val()});
-                        $("#message-input").val("");
+                    var nick = $("#message-nick").val();
+
+                    if (msg == "/mute") {
+                        muted = true;
+
+                        var new_div = document.createElement("div");
+                        new_div.className = "message";
+                        new_div.innerHTML = "Sound was muted!";
+
+                        $("#chat").append(new_div);
+                    } else if (msg == "/unmute") {
+                        muted = false;
+
+                        var new_div = document.createElement("div");
+                        new_div.className = "message";
+                        new_div.innerHTML = "Sound was unmuted!";
+
+                        $("#chat").append(new_div);
+                    } else {
+                        if (nick.length > 0 && msg.length > 0) {
+                            sock.emit("send message", {nick: nick, msg: msg});
+                        } else {
+                            var new_div = document.createElement("div");
+                            new_div.className = "message";
+                            new_div.innerHTML = "No such command!";
+
+                            $("#chat").append(new_div);
+                        }
                     }
+
+                    $("#message-input").val("");
                 }
             });
 
