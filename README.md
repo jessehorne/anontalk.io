@@ -6,6 +6,8 @@ anontalk.io is a minimal open-source chat application. All of the users are conn
 # Requirements
 * [Flask](http://flask.pocoo.org/) 0.10.1
 * [Python](https://www.python.org/) 2.7
+* [SocketIO](https://github.com/miguelgrinberg/python-socketio.git)
+* [Eventlet](http://eventlet.net/)
 
 # Running
 Step 1. Create the config file (./anontalk.conf)
