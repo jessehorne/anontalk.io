@@ -28,8 +28,6 @@
 
                 $('#chat').animate({scrollTop: $('#chat').get(0).scrollHeight}, 0);
 
-                $("#message-input").val("");
-
                 document.title = "*new message*";
             });
 
@@ -69,7 +67,7 @@
 
                 if (e.keyCode == 13) {
                     if ($("#message-nick").val().length > 0 && $("#message-input").val().length > 0) {
-                        console.log("test")
+                        $("#message-input").val("");
                         sock.emit("send message", {nick: $("#message-nick").val(), msg: $("#message-input").val()});
                     }
                 }
