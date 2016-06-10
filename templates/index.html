@@ -29,6 +29,8 @@
                 $('#chat').animate({scrollTop: $('#chat').get(0).scrollHeight}, 0);
 
                 $("#message-input").val("");
+
+                document.title = "*new message*";
             });
 
             sock.on("get user count", function(data) {
