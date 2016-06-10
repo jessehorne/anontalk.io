@@ -4,101 +4,74 @@
     <div class="chat" id="chat"></div>
 
     <input type="text" class="message-nick" id="message-nick" maxlength="15" placeholder="nickname">
-    <input type="text" class="message-input" id="message-input" maxlength="100" placeholder="...">
+    <input type="text" class="message-input" id="message-input" maxlength="200" placeholder="...">
+
+    <script src="{{ url_for('static', filename='socketio.js') }}"></script>
 
     <script>
-    $(document).ready(function() {
-        document.title = "anontalk.io";
+        $(document).ready(function() {
+            var sock = io.connect("http://{{ anonconf['anontalk']['ip'] }}:{{ anonconf['anontalk']['port'] }}");
 
-        var chat_message_alert = "*new message*";
+            sock.on("connect", function() {
+                console.log("Connected to anontalk.io!");
+                sock.emit("get user count");
+            });
 
-        var chat_buffer = [];
+            sock.on("receive chat", function(data) {
+                $("#header-users").html(data["users"] + " user(s)");
 
-        $("#message-input").keyup(function(e) {
-            var nick = $("#message-nick").val();
-            var msg = $("#message-input").val();
+                var new_div = document.createElement("div");
+                new_div.className = "message";
+                new_div.innerHTML = "<b class=\"username\">" + data["nick"] + "</b> - " + data["msg"];
 
-            if (e.keyCode == 13) {
-                if (!$("#message-nick").val() == "" && $("#message-input").val().length > 0) {
-                    var data = {};
-                    data["nick"] = nick;
-                    data["msg"] = msg;
+                $("#chat").append(new_div);
 
-                    $.ajax({
-                        type: "POST",
-                        url: "http://{{ config['anontalk']['ip'] }}/chat/send",
-                        data: JSON.stringify(data),
-                        contentType : 'application/json',
-                        dataType: "json",
-                        async: true,
-                        success: function(data) {
-                            // pass
-                        }
-                    });
+                $('#chat').animate({scrollTop: $('#chat').get(0).scrollHeight}, 0);
+            });
 
-                    $("#message-input").val("");
+            sock.on("get user count", function(data) {
+                $("#header-users").html(data["users"] + " user(s)");
+            });
+
+            document.title = "anontalk.io";
+
+            var chat_message_alert = "*new message*";
+
+            $("body").mousemove(function(event) {
+                document.title = "anontalk.io";
+            });
+
+            $("#message-nick").keydown(function(e) {
+                document.title = "anontalk.io";
+                var nick = $("#message-nick").val();
+                if (nick.length >= 15) {
+                    $("#message-nick").addClass("input-alert");
+                } else {
+                    $("#message-nick").removeClass("input-alert")
                 }
-            } else {
-                if (msg.length >= 100) {
+            });
+
+            $("#message-input").keydown(function(e) {
+                if (document.title != "anontalk.io") {
+                    document.title = "anontalk.io";
+                }
+
+                var msg = $("#message-input").val();
+                if (msg.length >= 200) {
                     $("#message-input").addClass("input-alert");
                 } else {
                     $("#message-input").removeClass("input-alert")
                 }
-            }
-        });
 
-        $("#message-nick").keyup(function(e) {
-            document.title = "anontalk.io";
-            var nick = $("#message-nick").val();
-
-            if (nick.length >= 15) {
-                $("#message-nick").addClass("input-alert");
-            } else {
-                $("#message-nick").removeClass("input-alert")
-            }
-        });
-
-        $(document).mousemove(function(event) {
-            document.title = "anontalk.io";
-        });
-
-        var refresh = setInterval(function() {
-            $.ajax({
-                type: "GET",
-                url: "http://{{ config['anontalk']['ip'] }}/chat/get",
-                async: true,
-                success: function(data) {
-                    if (data !== "{}") {
-                        var buffer = JSON.parse(data);
-
-                        buffer["buffer"].reverse();
-
-                        var div_buffer = "";
-                        var div = "<div class=\"message\"><b class=\"username\">NICK</b> - MSG</div>";
-
-                        for (var i=0; i<buffer["buffer"].length; i++) {
-                            var new_div = div.replace("NICK", buffer["buffer"][i][0]);
-                            new_div = new_div.replace("MSG", buffer["buffer"][i][1]);
-
-                            div_buffer += new_div;
-                        }
-
-                        var users_count_msg = buffer["users"] + " anon(s)";
-
-                        // $("#header-users").html(users_count_msg);
-                        if ($("#chat").html() == div_buffer) {
-                            // pass
-                        } else {
-                            document.title = chat_message_alert;
-                        }
-
-                        $("#chat").html(div_buffer);
+                if (e.keyCode == 13) {
+                    if ($("#message-nick").val().length > 0 && $("#message-input").val().length > 0) {
+                        console.log("test")
+                        sock.emit("send message", {nick: $("#message-nick").val(), msg: $("#message-input").val()});
                     }
                 }
             });
-        }, 500);
 
-    });
 
+        });
     </script>
 {% endblock %}

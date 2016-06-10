@@ -1,7 +1,7 @@
 anontalk.io
 ===========
 
-anontalk.io is an open-source chat application written using Flask. All of the users are connected to a single room, and can enjoy communicating with each other without being tied down to a permanent username or account.
+anontalk.io is a minimal open-source chat application. All of the users are connected to a single room, and can enjoy communicating with each other without being tied down to a permanent username or account.
 
 # Requirements
 * [Flask](http://flask.pocoo.org/) 0.10.1

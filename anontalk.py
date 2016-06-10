@@ -1,55 +1,50 @@
-from flask import Flask, render_template, url_for, request, redirect
-from datetime import timedelta, datetime
+import socketio
+import eventlet
+import json
+from flask import Flask, render_template
 from lib import ConfParser
 
-import json
-
+socket = socketio.Server()
 app = Flask(__name__)
 
-chat_buffer = []
-chat_buffer_max = 50
-chat_max_length = 100
+anonconf = {}
+anonconf["anontalk"] = ConfParser.parse("anontalk")
 
-addrs = []
-
-config = {}
-config["anontalk"] = ConfParser.parse("anontalk")
-
-def add_chat(msg):
-    if len(msg) <= chat_max_length:
-        chat_buffer.append(msg)
-
-        if len(chat_buffer) == chat_buffer_max:
-            chat_buffer.pop(0)
-
-
-@app.route("/favicon.ico")
-def favicon():
-    return redirect(url_for('static', filename='favicon.ico'))
+user_count = 0
 
 @app.route("/")
 def index():
-    return render_template("index.html", config=config)
+    return render_template("index.html", anonconf=anonconf)
 
+@socket.on("connect")
+def connect(sid, environ):
+    global user_count
+    user_count += 1
 
-@app.route("/chat/send", methods=["POST"])
-def chat_send():
+@socket.on("disconnect")
+def disconnect(sid):
+    global user_count
+    user_count -= 1
 
-    data = request.get_json(silent=True)
-    add_chat([data["nick"], data["msg"]])
+@socket.on("send message")
+def send_message(sid, data):
+    global user_count
 
-    return "{}"
+    data["users"] = user_count
 
-@app.route("/chat/get")
-def chat_get():
+    socket.emit("receive chat", data)
+
+@socket.on("get user count")
+def get_user_count(sid):
+    global user_count
 
     data = {}
-    data["buffer"] = chat_buffer
-    data["users"] = len(addrs)
+    data["users"] = user_count
 
-    return json.dumps(data)
+    socket.emit("get user count", data, room=sid)
 
 
 if __name__ == "__main__":
-    app.config["DEBUG"] = config["anontalk"]["debug"]
-    app.run()
+    app.config["DEBUG"] = anonconf["anontalk"]["debug"]
+    app = socketio.Middleware(socket, app)
+    eventlet.wsgi.server(eventlet.listen((anonconf["anontalk"]["ip"], int(anonconf["anontalk"]["port"]))), app)
