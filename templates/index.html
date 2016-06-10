@@ -27,6 +27,8 @@
                 $("#chat").append(new_div);
 
                 $('#chat').animate({scrollTop: $('#chat').get(0).scrollHeight}, 0);
+
+                $("#message-input").val("");
             });
 
             sock.on("get user count", function(data) {
