@@ -67,8 +67,8 @@
 
                 if (e.keyCode == 13) {
                     if ($("#message-nick").val().length > 0 && $("#message-input").val().length > 0) {
-                        $("#message-input").val("");
                         sock.emit("send message", {nick: $("#message-nick").val(), msg: $("#message-input").val()});
+                        $("#message-input").val("");
                     }
                 }
             });
