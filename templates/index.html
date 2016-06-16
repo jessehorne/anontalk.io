@@ -25,6 +25,11 @@
 
                 var new_div = document.createElement("div");
                 new_div.className = "message";
+
+                data["msg"] = data["msg"].replace("<", "&lt;");
+                data["msg"] = data["msg"].replace(">", "&gt;");
+                data["msg"] = data["msg"].replace("</", "&lt;/");
+                
                 new_div.innerHTML = "<b class=\"username\">" + data["nick"] + "</b> - " + data["msg"];
 
                 $("#chat").append(new_div);

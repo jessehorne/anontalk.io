@@ -31,6 +31,7 @@ def send_message(sid, data):
     global user_count
 
     data["users"] = user_count
+    data["msg"] = r"{}".format(data["msg"])
 
     socket.emit("receive chat", data)
 
