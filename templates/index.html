@@ -29,7 +29,11 @@
                 data["msg"] = data["msg"].replace("<", "&lt;");
                 data["msg"] = data["msg"].replace(">", "&gt;");
                 data["msg"] = data["msg"].replace("</", "&lt;/");
-                
+
+                data["nick"] = data["nick"].replace("<", "&lt;");
+                data["nick"] = data["nick"].replace(">", "&gt;");
+                data["nick"] = data["nick"].replace("</", "&lt;/");
+
                 new_div.innerHTML = "<b class=\"username\">" + data["nick"] + "</b> - " + data["msg"];
 
                 $("#chat").append(new_div);

@@ -30,6 +30,15 @@ def disconnect(sid):
 def send_message(sid, data):
     global user_count
 
+    if len(data["nick"]) > 0:
+        data["nick"] = r"{}".format(data["nick"])
+
+    if len(data["nick"]) > 15:
+        break
+
+    if len(data["msg"]) > 200:
+        break
+
     data["users"] = user_count
     data["msg"] = r"{}".format(data["msg"])
 
